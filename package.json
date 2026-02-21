@@ -1,0 +1,35 @@
+{
+  "name": "koishi-plugin-mute-repeater",
+  "description": "Mute Repeater",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin",
+    "mute",
+    "repeater",
+    "anti",
+    "repeat"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.17.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idranme/koishi-plugin-mute-repeater.git"
+  },
+  "koishi": {
+    "description": {
+      "zh": "禁言复读",
+      "en": "Mute Repeater"
+    },
+    "browser": true
+  }
+}

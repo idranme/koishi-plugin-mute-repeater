@@ -3,18 +3,21 @@ import { Context, Schema } from 'koishi'
 interface RepeatState {
   content: string
   times: number
+  threshold: number
 }
 
 export const name = 'mute-repeater'
 
 export interface Config {
   minTimes: number
+  maxTimes: number
   muteDuration: number
   maxDurationMultiplier: number
 }
 
 export const Config: Schema<Config> = Schema.object({
   minTimes: Schema.natural().min(1).default(5).description('最少重复次数'),
+  maxTimes: Schema.natural().min(1).default(5).description('最多重复次数'),
   muteDuration: Schema.natural().min(1).default(60).description('禁言时长，单位为分钟'),
   maxDurationMultiplier: Schema.natural().min(1).default(8).description('最大禁言时长倍率')
 })
@@ -31,7 +34,8 @@ export function apply(ctx: Context, config: Config) {
   function getState(cid: string) {
     return states[cid] || (states[cid] = {
       content: '',
-      times: 0
+      times: 0,
+      threshold: getRandomInt(config.minTimes, config.maxTimes)
     })
   }
 
@@ -39,14 +43,15 @@ export function apply(ctx: Context, config: Config) {
     const state = getState(session.cid)
     if (session.content === state.content) {
       state.times += 1
-      if (state.times >= config.minTimes) {
+      if (state.times >= state.threshold) {
         state.times = 0
+        state.threshold = getRandomInt(config.minTimes, config.maxTimes)
         const multiplier = getRandomInt(1, config.maxDurationMultiplier)
-        await session.bot.muteGuildMember(session.guildId, session.userId, config.muteDuration * 60 * 1000 * multiplier)
+        await session.bot.muteGuildMember(session.guildId!, session.userId!, config.muteDuration * 60 * 1000 * multiplier)
         await session.send(session.text('muteNotice', { duration: config.muteDuration * multiplier }))
       }
     } else {
-      state.content = session.content
+      state.content = session.content!
       state.times = 0
     }
   })
@@ -56,7 +61,7 @@ export function apply(ctx: Context, config: Config) {
     if (session.content === state.content) {
       state.times += 1
     } else {
-      state.content = session.content
+      state.content = session.content!
       state.times = 0
     }
   })
